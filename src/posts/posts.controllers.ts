@@ -2,6 +2,7 @@ import express, { response } from 'express';
 import Post from './post.interface';
 import { postModel } from './post.mddel';
 import Controller from '../interfaces/controller.interface';
+import PostNotFoundException from '../exceptions/PostNotFoundException';
 
 class PostController implements Controller {
 
@@ -27,30 +28,38 @@ class PostController implements Controller {
         })
     }
 
-    getPostById = (req: express.Request, res: express.Response) => {
+    getPostById = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const id = req.params.id;
         this.post.findById(id)
             .then(post => {
-                res.json(post);
+                if (post)
+                    res.json(post);
+                else
+                    next(new PostNotFoundException(id));
             })
     }
 
-    modifyPost = (req: express.Request, res: express.Response) => {
+    modifyPost = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const id = req.params.id;
         const postData: Post = req.body;
         this.post.findByIdAndUpdate(id, postData, { new: true })
             .then(post => {
-                res.json(post);
+                if (post) {
+                    res.json(post);
+                }
+                else {
+                    next(new PostNotFoundException(id));
+                }
             })
     }
-    deletePost = (req: express.Request, res: express.Response) => {
+    deletePost = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const id = req.params.id;
         this.post.findByIdAndDelete(id)
             .then(successResponse => {
                 if (successResponse) {
                     res.send(200);
                 } else {
-                    res.send(404);
+                    next(new PostNotFoundException(id));
                 }
             })
     }

@@ -3,6 +3,7 @@ import { requestLoggerMiddleware } from './requestLoggerMiddleware';
 import PostController from './posts/posts.controllers';
 import mongoose from 'mongoose';
 import { mongodbURI } from './config';
+import errorMiddleware from './middleware/error.middleware';
 
 
 
@@ -22,6 +23,7 @@ class ExpressApp {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: false }));
         this.app.use(requestLoggerMiddleware);
+        this.app.use(errorMiddleware);
     }
 
     run() {
