@@ -1,6 +1,8 @@
 import express from 'express';
 import { requestLoggerMiddleware } from './requestLoggerMiddleware';
 import PostController from './posts/posts.controllers';
+import mongoose from 'mongoose';
+import { mongodbURI } from './config';
 
 
 
@@ -11,7 +13,7 @@ class ExpressApp {
         this.app = express();
         if (port)
             this.port = port;
-
+        this.connectToDatabase();
         this.initializeMiddleware();
         this.initializeControllers(controllers);
     }
@@ -32,6 +34,15 @@ class ExpressApp {
         controllers.forEach((controller: PostController) => {
             this.app.use('/', controller.router);
         })
+    }
+
+    private connectToDatabase() {
+        mongoose.set('useUnifiedTopology', true);
+        mongoose.set('useFindAndModify',false);
+        mongoose.connect(mongodbURI, { useNewUrlParser: true })
+            .then(() => {
+                console.log("mongodb connected!");
+            });
     }
 
 
